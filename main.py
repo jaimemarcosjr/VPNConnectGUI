@@ -191,7 +191,7 @@ class main:
 			return
 		pr.insertCred(user, pas)
 		dialog.on_info(dPref, "Success. ", "VPN Credentials saved!")
-	def seVPN_key_release_event_cb(self, *a, **kv):
+	def on_seVPN_search_changed(self, *a, **kv):
 		if not self.get_text().strip():
 			getList()
 			return
