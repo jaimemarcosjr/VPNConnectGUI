@@ -31,10 +31,6 @@ sStatus = abuilder.get_object("sStatus")
 test = [["test"],
 		["test1"],
 		["test2"]]
-
-# current selected
-
-
 #selection changed in tvList
 def onSelectionChanged(tree_selection):
 	(model, pathlist) = tree_selection.get_selected_rows()
