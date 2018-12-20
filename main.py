@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-import gi, sys, os, threading, re, workaround as work
+import gi, sys, os, threading, re, workaround as work, dialog
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from pref import preferences
-from dialog import dialog
 
 whatis = lambda obj: print(type(obj), "\n\t" + "\n\t".join(dir(obj)))
 
