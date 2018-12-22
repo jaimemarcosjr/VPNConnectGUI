@@ -127,8 +127,7 @@ class preferences:
         r = self.c.fetchone()
         res = str(r[0])
         return res
-
-
+        
     def __dumpJSON(self, data):
         return json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
     def __loadJSON(self, data):
