@@ -29,6 +29,7 @@ sStatus = abuilder.get_object("sStatus")
 test = [["test"],
 		["test1"],
 		["test2"]]
+
 #selection changed in tvList
 def onSelectionChanged(tree_selection):
 	(model, pathlist) = tree_selection.get_selected_rows()
@@ -51,6 +52,7 @@ def connectRealtime(cmd):
 	work.status = "idle"
 	iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
 	lblStatus.set_text("Connecting....")
+	sStatus.start()
 	while True:
 		line = p.readline().decode().strip()
 		lsLog.append([line])
@@ -58,10 +60,12 @@ def connectRealtime(cmd):
 			iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Your are now disconnected")
 			work.status = "disconnected"
+			sStatus.stop()
 		if "Initialization Sequence Completed" in line:
 			iStatus.set_from_stock(Gtk.STOCK_CONNECT, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Your are now connected")
 			work.status = "connected"
+			sStatus.stop()
 		if "process exiting" in line:
 			iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Your are now disconnected")
@@ -69,14 +73,17 @@ def connectRealtime(cmd):
 				iStatus.set_from_stock(Gtk.STOCK_DIALOG_ERROR, Gtk.IconSize.BUTTON)
 				lblStatus.set_text("Invalid login credentials")
 			work.status = "disconnected"
+			sStatus.stop()
 		if "Cannot resolve host address" in line:
 			iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Temporary failure in name resolution")
 			work.status = "idle"
+			sStatus.stop()
 		if "Restart pause" in line:
 			iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Reconnecting....")
 			work.status = "idle"
+			sStatus.start()
 
 		if not line: break
 
@@ -212,6 +219,3 @@ abuilder.connect_signals(main)
 form.show()
 
 Gtk.main()
-
-
-#/usr/sbin/openvpn
