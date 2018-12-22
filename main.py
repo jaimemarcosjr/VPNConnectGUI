@@ -133,7 +133,9 @@ class main:
 	def on_btnDisconnect_clicked(self, *a, **kv):
 		disconnect()
 	def on_btnConnect_clicked(self, *a, **kv):
-		if work.status is "connected" or work.status is "idle" or work.currentSelected.strip() is "":
+		if work.currentSelected.strip() is "":
+			return True
+		if work.status is "connected" or work.status is "idle":
 			dialog.on_warn(form, "", "Disconnect first!")
 			return True
 		proxy = pr.getProxy()
