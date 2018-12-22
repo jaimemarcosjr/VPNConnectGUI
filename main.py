@@ -54,7 +54,7 @@ def connectRealtime(cmd):
 	while True:
 		line = p.readline().decode().strip()
 		lsLog.append([line])
-		if "Request dismissed" in line:
+		if "Request dismissed" in line or "Not authorized" in line:
 			iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
 			lblStatus.set_text("Your are now disconnected")
 			work.status = "disconnected"
@@ -112,7 +112,7 @@ class main:
 				p = disconnect()
 				while True:
 					line = p.readline().decode().strip()
-					if "Request dismissed" in line:
+					if "Request dismissed" in line or "Not authorized" in line:
 						return True
 					if not line: break
 		pr.close()
