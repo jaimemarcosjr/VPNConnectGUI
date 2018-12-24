@@ -4,7 +4,6 @@ from pref import preferences
 
 currentSelected = ""
 status = "disconnected" # connected | disconnected | idle
-cred_path = ""
 def executeCommand(cmd = [""]):
     try:
         res = sp.run(cmd, shell=True, check=True, stdout=sp.PIPE, executable='/bin/bash')

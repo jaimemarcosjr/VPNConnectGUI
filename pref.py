@@ -10,11 +10,8 @@ class preferences:
         self.c.execute('''CREATE TABLE IF NOT EXISTS conf
              (name text, value text)''')
         self.conn.commit()
-    def deleteTempFile(self, path):
-        if os.path.exists(path):
-            os.remove(path)
-        else:
-            print("The file does not exist")
+    def tempFolder(self):
+        return self.__generateConfigPath() + "tmp/"
 
     def generateTempFileCred(self, user, p):
         path = self.__generateFileName()
@@ -127,14 +124,21 @@ class preferences:
         r = self.c.fetchone()
         res = str(r[0])
         return res
-        
+
     def __dumpJSON(self, data):
         return json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
     def __loadJSON(self, data):
         return json.loads(data)
     def __generateConfigPath(self):
-        return str(Path.home()) + "/.config/"
+        path = str(Path.home()) + "/.config/VPNConnectGUI/"
+        self.__createFolder(path)
+        return path
     def __generateFileName(self):
-        config = self.__generateConfigPath()
+        config = self.tempFolder()
+        self.__createFolder(config)
         ran = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
         return config + ran + str(datetime.now().date()) + "_" + str(datetime.now().time()) + ".txt"
+    def __createFolder(self, path):
+        try: os.mkdir(path)
+        except OSError as args: print ("Creation of the directory %s failed. " % path, args.strerror)
+        else: print ("Successfully created the directory %s " % path)

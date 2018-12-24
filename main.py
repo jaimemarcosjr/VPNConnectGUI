@@ -92,7 +92,7 @@ def disconnect():
 		return
 	cmd = ["/usr/bin/pkexec --disable-internal-agent pkill openvpn && echo \"return\""]
 	res = work.executeCommandRealTime(cmd)
-	work.executeCommand("rm -rf " + work.cred_path)
+	work.executeCommand("rm -rf " + pr.tempFolder())
 	return res
 pr = preferences()
 class main:
@@ -146,7 +146,6 @@ class main:
 			if(proxy[2]):
 				cmdProxy = " --http-proxy " + proxy[1] + " " + proxy[0]
 		cred_path = pr.generateTempFileCred(pr.getCred()[0], pr.getCred()[1])
-		work.cred_path = cred_path
 		cmd = ["/usr/bin/pkexec --disable-internal-agent openvpn --config " +
 		pr.getDirectory()[0] + "/" + re.escape(work.currentSelected) +
 		" --auth-user-pass " + cred_path + cmdProxy]
