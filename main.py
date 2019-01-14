@@ -62,11 +62,17 @@ def connectRealtime(cmd):
             lblStatus.set_text("Your are now disconnected")
             work.status = "disconnected"
             sStatus.stop()
+            work.executeCommand(
+                "notify-send 'Warning' 'You are now disconnected!' --icon=security-low"
+            )
         if "Initialization Sequence Completed" in line:
             iStatus.set_from_stock(Gtk.STOCK_CONNECT, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Your are now connected")
             work.status = "connected"
             sStatus.stop()
+            work.executeCommand(
+                "notify-send 'Success' 'You are now connected!' --icon=security-high"
+            )
         if "process exiting" in line:
             iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Your are now disconnected")
@@ -74,6 +80,9 @@ def connectRealtime(cmd):
                 iStatus.set_from_stock(Gtk.STOCK_DIALOG_ERROR,
                                        Gtk.IconSize.BUTTON)
                 lblStatus.set_text("Invalid login credentials")
+                work.executeCommand(
+                    "notify-send 'Auth failure!' 'You may not allowed to access or username and password are incorrect' --icon=changes-prevent"
+                )
             work.status = "disconnected"
             sStatus.stop()
         if "Cannot resolve host address" in line:
@@ -81,11 +90,17 @@ def connectRealtime(cmd):
             lblStatus.set_text("Temporary failure in name resolution")
             work.status = "idle"
             sStatus.stop()
+            work.executeCommand(
+                "notify-send 'Warning' 'Please check you internet connection' --icon=network-wireless-offline-symbolic.symbolic"
+            )
         if "Restart pause" in line:
             iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Reconnecting....")
             work.status = "idle"
             sStatus.start()
+            work.executeCommand(
+                "notify-send 'Info' 'Reconnecting....' --icon=dialog-information"
+            )
 
         if not line: break
 
