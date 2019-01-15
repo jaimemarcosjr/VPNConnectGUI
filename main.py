@@ -76,6 +76,9 @@ def connectRealtime(cmd):
         if "process exiting" in line:
             iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Your are now disconnected")
+            work.executeCommand(
+                "notify-send 'Warning' 'You are now disconnected!' --icon=security-low"
+            )
             if "auth-failure" in line:
                 iStatus.set_from_stock(Gtk.STOCK_DIALOG_ERROR,
                                        Gtk.IconSize.BUTTON)
