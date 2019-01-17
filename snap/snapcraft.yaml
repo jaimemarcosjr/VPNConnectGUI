@@ -2,8 +2,7 @@
   name: vpnconnectgui
   version: 'git'
   summary: Use openvpn with GUI
-  description: |
-    An application with Graphical User Interface that lets you connect to VPN server with openvpn written in Python3 with Gtk3 required package: openvpn notify-osd libnotify-bin
+  description: An application with Graphical User Interface that lets you connect to VPN server with openvpn written in Python3 with Gtk3
 
   grade: devel # must be 'stable' to release into candidate/stable channels
   confinement: devmode # use 'strict' once you have the right plugs and slots
