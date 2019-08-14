@@ -43,10 +43,6 @@ def onSelectionChanged(tree_selection):
             print(work.currentSelected)
 
 def onKeyReleased(widget, event):
-    #print(True)
-    #print("Key press on widget: ", widget)
-    #print("          Modifiers: ", event.state)
-    #print("      Key val, name: ", event.keyval, Gdk.keyval_name(event.keyval))
     if event.keyval == Gdk.KEY_Return:
         print(True)
         btnConnect.clicked()
