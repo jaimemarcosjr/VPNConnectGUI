@@ -2,6 +2,7 @@
 import gi, sys, os, threading, re, workaround as work, dialog
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gdk
 from pref import preferences
 
 whatis = lambda obj: print(type(obj), "\n\t" + "\n\t".join(dir(obj)))
@@ -11,6 +12,8 @@ abuilder.add_from_file("main.glade")
 
 # Getting widgets
 form = abuilder.get_object("mainForm")
+
+btnConnect = abuilder.get_object("btnConnect")
 
 tvList = abuilder.get_object("tvList")
 lsList = abuilder.get_object("lsList")
@@ -38,6 +41,15 @@ def onSelectionChanged(tree_selection):
         work.currentSelected = value
         if (value.strip() != ""):
             print(work.currentSelected)
+
+def onKeyReleased(widget, event):
+    #print(True)
+    #print("Key press on widget: ", widget)
+    #print("          Modifiers: ", event.state)
+    #print("      Key val, name: ", event.keyval, Gdk.keyval_name(event.keyval))
+    if event.keyval == Gdk.KEY_Return:
+        print(True)
+        btnConnect.clicked()
 
 
 def getList():
@@ -127,6 +139,7 @@ class main:
         print("Showing.....")
         tree_selection = tvList.get_selection()
         tree_selection.connect("changed", onSelectionChanged)
+        tvList.connect("key-release-event", onKeyReleased)
         getList()
         for i, column_title in enumerate(["VPN Files"]):
             renderer = Gtk.CellRendererText()
