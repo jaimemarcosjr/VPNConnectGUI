@@ -5,6 +5,7 @@ from datetime import datetime
 
 
 class preferences:
+    form_show_inc = 0
     def __init__(self):
         self.conn = sqlite3.connect(self.__generateConfigPath() +
                                     'VPNConnectGUI.db')

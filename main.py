@@ -20,6 +20,10 @@ lsList = abuilder.get_object("lsList")
 
 dPref = abuilder.get_object("dPref")
 
+siStatus = abuilder.get_object("siStatus")
+
+adVPN = abuilder.get_object("adVPN")
+
 tvLog = abuilder.get_object("tvLog")
 lsLog = abuilder.get_object("lsLog")
 swLog = abuilder.get_object("swLog")
@@ -62,6 +66,8 @@ def connectRealtime(cmd):
     iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
     lblStatus.set_text("Connecting....")
     sStatus.start()
+    siStatus.set_from_icon_name("network-vpn-acquiring")
+    siStatus.set_tooltip_text("OpenVPN GUI: Connecting")
     while True:
         line = p.readline().decode().strip()
         lsLog.append([line])
@@ -73,6 +79,8 @@ def connectRealtime(cmd):
             work.executeCommand(
                 "notify-send 'Warning' 'You are now disconnected!' --icon=security-low"
             )
+            siStatus.set_from_icon_name("network-vpn")
+            siStatus.set_tooltip_text("OpenVPN GUI: Disconnected")
         if "Initialization Sequence Completed" in line:
             iStatus.set_from_stock(Gtk.STOCK_CONNECT, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Your are now connected")
@@ -81,6 +89,8 @@ def connectRealtime(cmd):
             work.executeCommand(
                 "notify-send 'Success' 'You are now connected!' --icon=security-high"
             )
+            siStatus.set_from_icon_name("nm-vpn-standalone-lock")
+            siStatus.set_tooltip_text("OpenVPN GUI: Connected")
         if "process exiting" in line:
             iStatus.set_from_stock(Gtk.STOCK_DISCONNECT, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Your are now disconnected")
@@ -96,6 +106,8 @@ def connectRealtime(cmd):
                 )
             work.status = "disconnected"
             sStatus.stop()
+            siStatus.set_from_icon_name("network-vpn")
+            siStatus.set_tooltip_text("OpenVPN GUI: Disconnected")
         if "Cannot resolve host address" in line:
             iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Temporary failure in name resolution")
@@ -104,6 +116,8 @@ def connectRealtime(cmd):
             work.executeCommand(
                 "notify-send 'Warning' 'Please check you internet connection' --icon=network-wireless-offline-symbolic.symbolic"
             )
+            siStatus.set_from_icon_name("network-vpn")
+            siStatus.set_tooltip_text("OpenVPN GUI: Idle")
         if "Restart pause" in line:
             iStatus.set_from_stock(Gtk.STOCK_INFO, Gtk.IconSize.BUTTON)
             lblStatus.set_text("Reconnecting....")
@@ -112,7 +126,8 @@ def connectRealtime(cmd):
             work.executeCommand(
                 "notify-send 'Info' 'Reconnecting....' --icon=dialog-information"
             )
-
+            siStatus.set_from_icon_name("network-vpn-acquiring")
+            siStatus.set_tooltip_text("OpenVPN GUI: Reconnecting")
         if not line: break
 
 
@@ -126,26 +141,38 @@ def disconnect():
     work.executeCommand("rm -rf " + pr.tempFolder())
     return res
 
+def closeForm(a):
+    form.close()
+
+def show_about_dialog(a):
+    adVPN.run()
+    adVPN.hide()
 
 pr = preferences()
 
 
+
+
 class main:
     def onShow(self, *a, **kv):
-        print("Showing.....")
-        tree_selection = tvList.get_selection()
-        tree_selection.connect("changed", onSelectionChanged)
-        tvList.connect("key-release-event", onKeyReleased)
-        getList()
-        for i, column_title in enumerate(["VPN Files"]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
-            tvList.append_column(column)
+        if pr.form_show_inc == 0:
+            print("Showing.....")
+            tree_selection = tvList.get_selection()
+            tree_selection.connect("changed", onSelectionChanged)
+            tvList.connect("key-release-event", onKeyReleased)
+            siStatus.set_visible(True)
+            siStatus.set_tooltip_text("OpenVPN GUI: Disconnected")
+            getList()
+            for i, column_title in enumerate(["VPN Files"]):
+                renderer = Gtk.CellRendererText()
+                column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+                tvList.append_column(column)
 
-        for i, column_title in enumerate(["Log"]):
-            renderer = Gtk.CellRendererText()
-            column = Gtk.TreeViewColumn(column_title, renderer, text=i)
-            tvLog.append_column(column)
+            for i, column_title in enumerate(["Log"]):
+                renderer = Gtk.CellRendererText()
+                column = Gtk.TreeViewColumn(column_title, renderer, text=i)
+                tvLog.append_column(column)
+        pr.form_show_inc += 1
 
     def on_mainForm_delete_event(self, a, *b):
         if work.status is "connected" or work.status is "idle":
@@ -164,9 +191,10 @@ class main:
         pr.close()
         print("Exiting......")
         sys.exit(0)
-
+    def about_activate(self):
+        show_about_dialog(1)
     def onQuit(self, *a, **kv):
-        print("")
+        print("onQuit")
 
     def btn1Clicked(self, *a, **kv):
         print("Clicked")
@@ -271,7 +299,27 @@ class main:
         adj.set_upper(upper - page_size)
         adj.set_value(upper - page_size)
         swLog.set_vadjustment(adj)
+    def siStatus_activate_cb(self):   
+        if form.get_visible():
+            form.hide()
+        else: 
+            form.show()
+    def siStatus_popup_menu_cb(self, button, activate_time):        
+        mStatusmenu = Gtk.Menu()
 
+        about = Gtk.MenuItem()
+        about.set_label("About")
+        about.connect("activate", show_about_dialog)
+        mStatusmenu.append(about)
+
+        quit = Gtk.MenuItem()
+        quit.set_label("Quit")
+        quit.connect("activate", closeForm)
+        mStatusmenu.append(quit)
+
+        mStatusmenu.show_all()
+
+        mStatusmenu.popup(None, None, None, self, button, activate_time)
 
 abuilder.connect_signals(main)
 form.show()
