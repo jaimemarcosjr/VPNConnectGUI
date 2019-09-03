@@ -9,8 +9,6 @@ def on_info(window, primary, secondary):
                                Gtk.ButtonsType.OK, primary)
     dialog.format_secondary_text(secondary)
     dialog.run()
-    print("INFO dialog closed")
-
     dialog.destroy()
 
 
@@ -19,8 +17,6 @@ def on_error(window, primary, secondary):
                                Gtk.ButtonsType.CANCEL, primary)
     dialog.format_secondary_text(secondary)
     dialog.run()
-    print("ERROR dialog closed")
-
     dialog.destroy()
 
 
@@ -29,9 +25,6 @@ def on_warn(window, primary, secondary):
                                Gtk.ButtonsType.OK, primary)
     dialog.format_secondary_text(secondary)
     response = dialog.run()
-    if response == Gtk.ResponseType.OK:
-        print("WARN dialog closed by clicking OK button")
-
     dialog.destroy()
 
 
@@ -41,10 +34,8 @@ def on_question(window, primary, secondary):
     dialog.format_secondary_text(secondary)
     response = dialog.run()
     if response == Gtk.ResponseType.YES:
-        print("QUESTION dialog closed by clicking YES button")
         dialog.destroy()
         return True
     elif response == Gtk.ResponseType.NO:
-        print("QUESTION dialog closed by clicking NO button")
         dialog.destroy()
         return False

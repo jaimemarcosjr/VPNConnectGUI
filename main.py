@@ -1,11 +1,16 @@
 #!/usr/bin/python3
-import gi, sys, os, threading, re, workaround as work, dialog
+import gi, sys, os, threading, re, workaround as work, dialog, sys 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
 from pref import preferences
 
 whatis = lambda obj: print(type(obj), "\n\t" + "\n\t".join(dir(obj)))
+
+pr = preferences()
+if pr.checkPID() != "":
+    dialog.on_warn(None, "Existing Process", "Check your system tray!")
+    sys.exit(0)
 
 abuilder = Gtk.Builder()
 abuilder.add_from_file("main.glade")
@@ -48,7 +53,6 @@ def onSelectionChanged(tree_selection):
 
 def onKeyReleased(widget, event):
     if event.keyval == Gdk.KEY_Return:
-        print(True)
         btnConnect.clicked()
 
 
@@ -141,27 +145,34 @@ def disconnect():
     work.executeCommand("rm -rf " + pr.tempFolder())
     return res
 
-def closeForm(a):
-    form.close()
+def closeForm(arg):
+    if work.status is "connected" or work.status is "idle":
+        if not dialog.on_question(
+                form, "Warning", "Your are " + work.status +
+                ". Are you sure you want to exit? You will be disonnected."
+        ):
+            return True
+        else:
+            p = disconnect()
+            while True:
+                line = p.readline().decode().strip()
+                if "Request dismissed" in line or "Not authorized" in line:
+                    return True
+                if not line: break
+    work.executeCommand("rm -rf " + pr.pid_path)
+    pr.close()
+    sys.exit(0)
 
-def show_about_dialog(a):
+def show_about_dialog(arg):
     adVPN.run()
     adVPN.hide()
-
-pr = preferences()
-
-
-
 
 class main:
     def onShow(self, *a, **kv):
         if pr.form_show_inc == 0:
-            print("Showing.....")
             tree_selection = tvList.get_selection()
             tree_selection.connect("changed", onSelectionChanged)
             tvList.connect("key-release-event", onKeyReleased)
-            siStatus.set_visible(True)
-            siStatus.set_tooltip_text("OpenVPN GUI: Disconnected")
             getList()
             for i, column_title in enumerate(["VPN Files"]):
                 renderer = Gtk.CellRendererText()
@@ -175,29 +186,11 @@ class main:
         pr.form_show_inc += 1
 
     def on_mainForm_delete_event(self, a, *b):
-        if work.status is "connected" or work.status is "idle":
-            if not dialog.on_question(
-                    form, "Warning", "Your are " + work.status +
-                    ". Are you sure you want to exit? You will be disonnected."
-            ):
-                return True
-            else:
-                p = disconnect()
-                while True:
-                    line = p.readline().decode().strip()
-                    if "Request dismissed" in line or "Not authorized" in line:
-                        return True
-                    if not line: break
-        pr.close()
-        print("Exiting......")
-        sys.exit(0)
+        self.hide()
+        return True
+
     def about_activate(self):
         show_about_dialog(1)
-    def onQuit(self, *a, **kv):
-        print("onQuit")
-
-    def btn1Clicked(self, *a, **kv):
-        print("Clicked")
 
     def on_btnDisconnect_clicked(self, *a, **kv):
         disconnect()
@@ -211,7 +204,7 @@ class main:
         proxy = pr.getProxy()
         cmdProxy = ""
         if not proxy[0].strip() or not proxy[1].strip():
-            print("")
+            print("No proxy")
         else:
             if (proxy[2]):
                 cmdProxy = " --http-proxy " + proxy[1] + " " + proxy[0]
@@ -242,7 +235,6 @@ class main:
         dPref.show()
 
     def on_dPref_delete_event(self, *a, **kv):
-        print("hiding....")
         self.hide()
         return True
 
@@ -322,6 +314,11 @@ class main:
         mStatusmenu.popup(None, None, None, self, button, activate_time)
 
 abuilder.connect_signals(main)
-form.show()
-
+param = sys.argv
+for index, item in enumerate(param):
+    if item == "--show":
+        form.show()
+siStatus.set_visible(True)
+siStatus.set_tooltip_text("OpenVPN GUI: Disconnected")
+pr.createPID()
 Gtk.main()
