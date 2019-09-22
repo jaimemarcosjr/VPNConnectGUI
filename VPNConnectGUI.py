@@ -8,9 +8,22 @@ from pref import preferences
 whatis = lambda obj: print(type(obj), "\n\t" + "\n\t".join(dir(obj)))
 
 pr = preferences()
-if pr.checkPID() != "":
-    dialog.on_warn(None, "Existing Process", "Check your system tray!")
-    sys.exit(0)
+
+pid = pr.checkPID()
+if pid != "":
+    if pr.checkIfRunning(int(pid)):
+        is_process_name = False
+        proc = work.executeCommandRealTime(["ps -o cmd= " + pid])
+        while True:
+            line = proc.readline().decode().strip()
+            if line == "/usr/bin/python3 ./VPNConnectGUI.py":
+                is_process_name = True
+            if not line: break
+        if(is_process_name):
+            dialog.on_warn(None, "Existing Process", "Check your system tray!")
+            sys.exit(0)
+        else: work.executeCommand("rm -rf " + pr.pathOfPID())
+    else: work.executeCommand("rm -rf " + pr.pathOfPID())
 
 abuilder = Gtk.Builder()
 abuilder.add_from_file("main.glade")
@@ -159,7 +172,7 @@ def closeForm(arg):
                 if "Request dismissed" in line or "Not authorized" in line:
                     return True
                 if not line: break
-    work.executeCommand("rm -rf " + pr.pid_path)
+    work.executeCommand("rm -rf " + pr.pathOfPID())
     pr.close()
     sys.exit(0)
 

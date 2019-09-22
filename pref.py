@@ -6,7 +6,6 @@ from datetime import datetime
 
 class preferences:
     form_show_inc = 0
-    pid_path = ''
     def __init__(self):
         self.conn = sqlite3.connect(self.__generateConfigPath() +
                                     'VPNConnectGUI.db')
@@ -15,13 +14,24 @@ class preferences:
              (name text, value text)''')
         self.conn.commit()
 
+    def checkIfRunning(self, pid):
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        else:
+            return True
+
+    def pathOfPID(self):        
+        path = self.__generateConfigPath() + 'my.pid'
+        return path
+
     def createPID(self):
         pid = self.__getPID()
-        path = self.__generateConfigPath() + 'my.pid'
+        path = self.pathOfPID()      
         file = open(path, "w")
         file.write(pid + "\n")
         file.close()
-        self.pid_path = path
 
     def checkPID(self):
         try: 
